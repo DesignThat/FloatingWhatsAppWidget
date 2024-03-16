@@ -85,7 +85,15 @@ function floating_whatsapp_widget_render_settings_page() {
 
 function floating_whatsapp_widget_register_settings() {
     register_setting( 'floating_whatsapp_widget_settings', 'floating_whatsapp_widget_number' );
-    // other settings
+    register_setting( 'floating_whatsapp_widget_settings', 'floating_whatsapp_widget_position' );
+    register_setting( 'floating_whatsapp_widget_settings', 'floating_whatsapp_widget_placement' );
+    register_setting( 'floating_whatsapp_widget_settings', 'floating_whatsapp_widget_color' );
+    register_setting( 'floating_whatsapp_widget_settings', 'floating_whatsapp_widget_radius' );
+    register_setting( 'floating_whatsapp_widget_settings', 'floating_whatsapp_widget_shadow' );
+    register_setting( 'floating_whatsapp_widget_settings', 'floating_whatsapp_widget_font_size' );
+    register_setting( 'floating_whatsapp_widget_settings', 'floating_whatsapp_widget_animation' ); // New setting for animation
+    register_setting( 'floating_whatsapp_widget_settings', 'floating_whatsapp_widget_scroll_behavior' ); // New setting for scroll behavior
+    register_setting( 'floating_whatsapp_widget_settings', 'floating_whatsapp_widget_enabled' ); // New setting - enable/disable widget
 }
 add_action( 'admin_init', 'floating_whatsapp_widget_register_settings' );
 
