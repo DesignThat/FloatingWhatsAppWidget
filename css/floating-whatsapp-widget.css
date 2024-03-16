@@ -48,3 +48,23 @@
     top: 20px;
     bottom: auto;
 }
+#floating-whatsapp-widget.animated { /* Add a class for animation */
+    animation: pulse 1.5s infinite ease-in-out;
+}
+
+@keyframes pulse {
+  0% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.8;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+
+/* Hide on Scroll Styles */
+#floating-whatsapp-widget.hidden-on-scroll {
+    display: none;
+}
