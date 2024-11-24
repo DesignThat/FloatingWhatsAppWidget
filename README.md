@@ -36,6 +36,11 @@ For any support requests, bug reports, or feature suggestions, please create a t
 
 ## Changelog
 
+* **Version 1.3**
+    * Added option to choose between using a phone number or a WhatsApp link.
+    * Improved widget position options (bottom-left and bottom-right).
+    * Enhanced widget preview in the settings page.
+    * Added reset to default button for widget color.
 * **Version 1.2**
     * Added options to customize animations and scroll behavior.
     * Ability to enable/disable the widget entirely.
