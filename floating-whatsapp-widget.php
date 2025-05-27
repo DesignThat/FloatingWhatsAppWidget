@@ -2,14 +2,14 @@
 /*
 Plugin Name: Floating WhatsApp Widget
 Description: Adds a customizable WhatsApp floating widget to your website
-Version: 1.3.1
+Version: 1.4.2
 Author: DesignThat Cloud (Mthokozisi Dhlamini)
 Author URI: https://designthat.cloud/
 */
 
 if (!defined('ABSPATH')) exit;
 
-define('FWW_VERSION', '1.3.1');
+define('FWW_VERSION', '1.4.2');
 define('FWW_PLUGIN_DIR', plugin_dir_path(__FILE__));
 define('FWW_PLUGIN_FILE', __FILE__);
 
@@ -20,6 +20,32 @@ new FWW_Plugin_Updater(
     FWW_VERSION,
     'Floating WhatsApp Widget'
 );
+
+// Sanitize callbacks
+function fww_sanitize_phone($input) {
+    return preg_replace('/[^0-9]/', '', $input);
+}
+
+function fww_sanitize_whatsapp_link($input) {
+    return esc_url_raw($input);
+}
+
+function fww_sanitize_use_link($input) {
+    return $input === 'link' ? 'link' : 'phone';
+}
+
+function fww_sanitize_color($input) {
+    $color = sanitize_hex_color($input);
+    return $color ? $color : '#25D366';
+}
+
+function fww_sanitize_position($input) {
+    return $input === 'bottom-left' ? 'bottom-left' : 'bottom-right';
+}
+
+function fww_sanitize_enabled($input) {
+    return $input ? '1' : '0';
+}
 
 // Add menu item to WordPress admin
 function fww_add_admin_menu() {
@@ -34,21 +60,34 @@ function fww_add_admin_menu() {
 }
 add_action('admin_menu', 'fww_add_admin_menu');
 
+// Enqueue admin assets
+function fww_enqueue_admin_assets($hook) {
+    if ($hook !== 'toplevel_page_floating-whatsapp-widget') {
+        return;
+    }
+    wp_enqueue_style('wp-color-picker');
+    wp_enqueue_style('fww-admin', plugins_url('assets/admin.css', __FILE__), array('wp-color-picker'), FWW_VERSION);
+    wp_enqueue_script('fww-admin', plugins_url('assets/admin.js', __FILE__), array('jquery', 'wp-color-picker'), FWW_VERSION, true);
+}
+add_action('admin_enqueue_scripts', 'fww_enqueue_admin_assets');
+
 // Register plugin settings
 function fww_register_settings() {
-    register_setting('fww_settings', 'fww_phone');
-    register_setting('fww_settings', 'fww_whatsapp_link');
-    register_setting('fww_settings', 'fww_use_link');
-    register_setting('fww_settings', 'fww_color');
-    register_setting('fww_settings', 'fww_position');
+    register_setting('fww_settings', 'fww_phone', array('sanitize_callback' => 'fww_sanitize_phone'));
+    register_setting('fww_settings', 'fww_whatsapp_link', array('sanitize_callback' => 'fww_sanitize_whatsapp_link'));
+    register_setting('fww_settings', 'fww_use_link', array('sanitize_callback' => 'fww_sanitize_use_link'));
+    register_setting('fww_settings', 'fww_color', array('sanitize_callback' => 'fww_sanitize_color'));
+    register_setting('fww_settings', 'fww_position', array('sanitize_callback' => 'fww_sanitize_position'));
+    register_setting('fww_settings', 'fww_enabled', array('sanitize_callback' => 'fww_sanitize_enabled'));
 }
 add_action('admin_init', 'fww_register_settings');
 
 // Create the settings page
 function fww_settings_page() {
     ?>
-    <div class="wrap">
+    <div class="wrap fww-settings">
         <h2>WhatsApp Widget Settings</h2>
+        <?php settings_errors(); ?>
         <form method="post" action="options.php">
             <?php
             settings_fields('fww_settings');
@@ -81,7 +120,7 @@ function fww_settings_page() {
                 <tr>
                     <th scope="row">Widget Color</th>
                     <td>
-                        <input type="color" name="fww_color" value="<?php echo esc_attr(get_option('fww_color', '#25D366')); ?>" />
+                        <input type="text" class="fww-color-field" name="fww_color" value="<?php echo esc_attr(get_option('fww_color', '#25D366')); ?>" />
                         <button type="button" onclick="document.querySelector('input[name=fww_color]').value='#25D366'">Reset to Default</button>
                     </td>
                 </tr>
@@ -94,38 +133,31 @@ function fww_settings_page() {
                         </select>
                     </td>
                 </tr>
+                <tr>
+                    <th scope="row">Enable Widget</th>
+                    <td>
+                        <input type="checkbox" name="fww_enabled" value="1" <?php checked(get_option('fww_enabled', '1'), '1'); ?> />
+                    </td>
+                </tr>
             </table>
             <?php submit_button(); ?>
         </form>
     </div>
 
-    <script>
-    document.getElementById('fww_use_link').addEventListener('change', function() {
-        const phoneInput = document.querySelector('.phone-input');
-        const linkInput = document.querySelector('.link-input');
-        
-        if (this.value === 'phone') {
-            phoneInput.style.display = 'table-row';
-            linkInput.style.display = 'none';
-        } else {
-            phoneInput.style.display = 'none';
-            linkInput.style.display = 'table-row';
-        }
-    });
-
-    // Trigger on page load
-    document.getElementById('fww_use_link').dispatchEvent(new Event('change'));
-    </script>
     <?php
 }
 
 // Add the widget to the frontend
 function fww_add_widget() {
-    $use_link = get_option('fww_use_link', 'phone');
-    $phone = get_option('fww_phone');
+    if (is_admin() || !get_option('fww_enabled', '1')) {
+        return;
+    }
+
+    $use_link      = get_option('fww_use_link', 'phone');
+    $phone         = get_option('fww_phone');
     $whatsapp_link = get_option('fww_whatsapp_link');
-    $color = get_option('fww_color', '#25D366');
-    $position = get_option('fww_position', 'bottom-right');
+    $color         = get_option('fww_color', '#25D366');
+    $position      = get_option('fww_position', 'bottom-right');
 
     $link = $use_link === 'phone' 
         ? "https://wa.me/" . preg_replace('/[^0-9]/', '', $phone)
@@ -154,19 +186,17 @@ function fww_add_widget() {
         .floating-whatsapp a:hover {
             transform: scale(1.1);
         }
-        .floating-whatsapp svg {
+        .floating-whatsapp img {
             width: 35px;
             height: 35px;
             margin: 12px;
-            fill: white;
+            display: block;
         }
     </style>
 
     <div class="floating-whatsapp">
         <a href="<?php echo esc_url($link); ?>" target="_blank" rel="noopener noreferrer">
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512">
-                <path d="M380.9 97.1C339 55.1 283.2 32 223.9 32c-122.4 0-222 99.6-222 222 0 39.1 10.2 77.3 29.6 111L0 480l117.7-30.9c32.4 17.7 68.9 27 106.1 27h.1c122.3 0 224.1-99.6 224.1-222 0-59.3-25.2-115-67.1-157zm-157 341.6c-33.2 0-65.7-8.9-94-25.7l-6.7-4-69.8 18.3L72 359.2l-4.4-7c-18.5-29.4-28.2-63.3-28.2-98.2 0-101.7 82.8-184.5 184.5-184.5 49.2 0 95.4 19.2 130.2 54 34.8 34.8 54 81 54 130.2 0 101.7-82.8 184.5-184.5 184.5z"/>
-            </svg>
+            <img src="<?php echo esc_url( plugins_url( 'assets/whatsapp.svg', __FILE__ ) ); ?>" alt="WhatsApp" width="35" height="35" />
         </a>
     </div>
     <?php

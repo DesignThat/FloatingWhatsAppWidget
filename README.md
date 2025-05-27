@@ -9,6 +9,7 @@ A WordPress plugin providing a customizable floating WhatsApp button for easy vi
 * **Scroll Behavior:** Choose to display the widget constantly or have it hide on scroll.
 * **Easy Setup:** Simple settings page within the WordPress admin area.
 * **Widget Preview:** See changes reflected in real-time within the settings page.
+* **On/Off Toggle:** Enable or disable the widget globally from the settings page.
 
 ## Installation
 
@@ -35,6 +36,12 @@ After configuring the settings, the WhatsApp widget will automatically appear on
 For any support requests, bug reports, or feature suggestions, please create a ticket on the [DesignThat Cloud Dashboard](https://designthat.cloud/open-ticket/hosting?subject=WhatsAppWidget)
 
 ## Changelog
+
+* **Version 1.4.2**
+    * Enhanced settings page with WordPress color picker and refined layout.
+    * Added success messages when saving settings.
+    * Widget now displays bundled WhatsApp icon.
+    * Version compatibility with GitHub updater.
 
 * **Version 1.3**
     * Added option to choose between using a phone number or a WhatsApp link.
