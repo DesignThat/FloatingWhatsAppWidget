@@ -37,11 +37,18 @@ For any support requests, bug reports, or feature suggestions, please create a t
 
 ## Changelog
 
+
 * **Version 1.4.2**
     * Enhanced settings page with WordPress color picker and refined layout.
     * Added success messages when saving settings.
     * Widget now displays bundled WhatsApp icon.
     * Version compatibility with GitHub updater.
+
+* **Version 1.4.1**
+    * Sanitized all widget options to prevent invalid values.
+    * Added an enable/disable toggle for showing the widget.
+    * Display a notice when settings are saved successfully.
+
 
 * **Version 1.3**
     * Added option to choose between using a phone number or a WhatsApp link.

@@ -2,6 +2,7 @@
 /*
 Plugin Name: Floating WhatsApp Widget
 Description: Adds a customizable WhatsApp floating widget to your website
+
 Version: 1.4.2
 Author: DesignThat Cloud (Mthokozisi Dhlamini)
 Author URI: https://designthat.cloud/
@@ -9,7 +10,9 @@ Author URI: https://designthat.cloud/
 
 if (!defined('ABSPATH')) exit;
 
+
 define('FWW_VERSION', '1.4.2');
+
 define('FWW_PLUGIN_DIR', plugin_dir_path(__FILE__));
 define('FWW_PLUGIN_FILE', __FILE__);
 
@@ -87,7 +90,9 @@ function fww_settings_page() {
     ?>
     <div class="wrap fww-settings">
         <h2>WhatsApp Widget Settings</h2>
+
         <?php settings_errors(); ?>
+
         <form method="post" action="options.php">
             <?php
             settings_fields('fww_settings');
