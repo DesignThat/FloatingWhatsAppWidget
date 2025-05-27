@@ -102,7 +102,9 @@ class FWW_Plugin_Updater {
             'last_updated' => $release_info['published_at'],
             'sections' => array(
                 'description' => 'Floating WhatsApp Widget for WordPress',
-                'changelog' => wp_markdown_to_html($release_info['description']),
+                'changelog' => function_exists('wp_markdown_to_html') ?
+                    wp_markdown_to_html($release_info['description']) :
+                    wpautop($release_info['description']),
             ),
             'download_link' => $release_info['download_url'],
         );
