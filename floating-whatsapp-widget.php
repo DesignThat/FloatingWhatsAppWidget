@@ -2,14 +2,14 @@
 /*
 Plugin Name: Floating WhatsApp Widget
 Description: Adds a customizable WhatsApp floating widget to your website
-Version: 1.3.1
+Version: 1.4.1
 Author: DesignThat Cloud (Mthokozisi Dhlamini)
 Author URI: https://designthat.cloud/
 */
 
 if (!defined('ABSPATH')) exit;
 
-define('FWW_VERSION', '1.3.1');
+define('FWW_VERSION', '1.4.1');
 define('FWW_PLUGIN_DIR', plugin_dir_path(__FILE__));
 define('FWW_PLUGIN_FILE', __FILE__);
 
@@ -20,6 +20,32 @@ new FWW_Plugin_Updater(
     FWW_VERSION,
     'Floating WhatsApp Widget'
 );
+
+// Sanitize callbacks
+function fww_sanitize_phone($input) {
+    return preg_replace('/[^0-9]/', '', $input);
+}
+
+function fww_sanitize_whatsapp_link($input) {
+    return esc_url_raw($input);
+}
+
+function fww_sanitize_use_link($input) {
+    return $input === 'link' ? 'link' : 'phone';
+}
+
+function fww_sanitize_color($input) {
+    $color = sanitize_hex_color($input);
+    return $color ? $color : '#25D366';
+}
+
+function fww_sanitize_position($input) {
+    return $input === 'bottom-left' ? 'bottom-left' : 'bottom-right';
+}
+
+function fww_sanitize_enabled($input) {
+    return $input ? '1' : '0';
+}
 
 // Add menu item to WordPress admin
 function fww_add_admin_menu() {
@@ -36,11 +62,12 @@ add_action('admin_menu', 'fww_add_admin_menu');
 
 // Register plugin settings
 function fww_register_settings() {
-    register_setting('fww_settings', 'fww_phone');
-    register_setting('fww_settings', 'fww_whatsapp_link');
-    register_setting('fww_settings', 'fww_use_link');
-    register_setting('fww_settings', 'fww_color');
-    register_setting('fww_settings', 'fww_position');
+    register_setting('fww_settings', 'fww_phone', array('sanitize_callback' => 'fww_sanitize_phone'));
+    register_setting('fww_settings', 'fww_whatsapp_link', array('sanitize_callback' => 'fww_sanitize_whatsapp_link'));
+    register_setting('fww_settings', 'fww_use_link', array('sanitize_callback' => 'fww_sanitize_use_link'));
+    register_setting('fww_settings', 'fww_color', array('sanitize_callback' => 'fww_sanitize_color'));
+    register_setting('fww_settings', 'fww_position', array('sanitize_callback' => 'fww_sanitize_position'));
+    register_setting('fww_settings', 'fww_enabled', array('sanitize_callback' => 'fww_sanitize_enabled'));
 }
 add_action('admin_init', 'fww_register_settings');
 
@@ -49,6 +76,12 @@ function fww_settings_page() {
     ?>
     <div class="wrap">
         <h2>WhatsApp Widget Settings</h2>
+        <?php
+        if (isset($_GET['settings-updated'])) {
+            add_settings_error('fww_messages', 'fww_message', __('Settings Saved', 'floating-whatsapp-widget'), 'updated');
+        }
+        settings_errors('fww_messages');
+        ?>
         <form method="post" action="options.php">
             <?php
             settings_fields('fww_settings');
@@ -94,6 +127,12 @@ function fww_settings_page() {
                         </select>
                     </td>
                 </tr>
+                <tr>
+                    <th scope="row">Enable Widget</th>
+                    <td>
+                        <input type="checkbox" name="fww_enabled" value="1" <?php checked(get_option('fww_enabled', '1'), '1'); ?> />
+                    </td>
+                </tr>
             </table>
             <?php submit_button(); ?>
         </form>
@@ -121,11 +160,15 @@ function fww_settings_page() {
 
 // Add the widget to the frontend
 function fww_add_widget() {
-    $use_link = get_option('fww_use_link', 'phone');
-    $phone = get_option('fww_phone');
+    if (is_admin() || !get_option('fww_enabled', '1')) {
+        return;
+    }
+
+    $use_link      = get_option('fww_use_link', 'phone');
+    $phone         = get_option('fww_phone');
     $whatsapp_link = get_option('fww_whatsapp_link');
-    $color = get_option('fww_color', '#25D366');
-    $position = get_option('fww_position', 'bottom-right');
+    $color         = get_option('fww_color', '#25D366');
+    $position      = get_option('fww_position', 'bottom-right');
 
     $link = $use_link === 'phone' 
         ? "https://wa.me/" . preg_replace('/[^0-9]/', '', $phone)
