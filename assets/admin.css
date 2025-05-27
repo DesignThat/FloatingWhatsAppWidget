@@ -1,0 +1,10 @@
+.fww-settings .form-table th {
+    width: 150px;
+}
+.fww-settings .form-table input[type="text"],
+.fww-settings .form-table input[type="url"] {
+    width: 300px;
+}
+.fww-settings .description {
+    font-style: italic;
+}
