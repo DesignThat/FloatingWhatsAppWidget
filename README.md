@@ -9,6 +9,7 @@ A WordPress plugin providing a customizable floating WhatsApp button for easy vi
 * **Scroll Behavior:** Choose to display the widget constantly or have it hide on scroll.
 * **Easy Setup:** Simple settings page within the WordPress admin area.
 * **Widget Preview:** See changes reflected in real-time within the settings page.
+* **On/Off Toggle:** Enable or disable the widget globally from the settings page.
 
 ## Installation
 
